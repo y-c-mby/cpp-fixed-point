@@ -14,6 +14,8 @@ public:
     T getCents() const;
     T getDollarAndCents() const;
     bool isPositive()const;
+    Price operator ++(int);
+    Price operator ++();
 private:
     T m_dollar;
     T m_cents;
@@ -65,7 +67,7 @@ template <typename T , typename U>
 inline Price<T> operator-(const Price<T>& p1, const  Price<U> &p2) {
     return p1+(p2*Price<char>(-1));
 }
-template <template T , typename U>
+template <typename T , typename U>
 inline Price<T> operator * (const Price<T>& p1, const  Price<U> &p2){
     size_t new_price;
     new_price = p1.getDollarAndCents()*p2.getDollarAndCents();
@@ -74,6 +76,7 @@ inline Price<T> operator * (const Price<T>& p1, const  Price<U> &p2){
     }
     return Price<T>(new_price/100,new_price%100);
 }
+template <typename T , typename U>
 inline Price<T> operator/(const Price<T>& p1, const  Price<U> &p2){
     size_t new_price;
     new_price = p1.getDollarAndCents()/p2.getDollarAndCents();
@@ -91,3 +94,11 @@ inline Price<T> operator/(const Price<T>& p1, const  Price<U> &p2){
 //    return Price<T>(new_price/100,new_price%100);
 //}
 #endif //PRICE_PRICE_H
+template <typename  T>
+inline Price<T> Price<T>::operator++(int){
+    return Price<T>(m_dollar+1,m_cents);
+}
+template <typename T>
+inline Price<T> Price<T>::operator++() {
+    return Price<T>(m_dollar+1,m_cents);
+}

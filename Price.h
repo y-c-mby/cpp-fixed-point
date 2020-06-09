@@ -65,7 +65,29 @@ template <typename T , typename U>
 inline Price<T> operator-(const Price<T>& p1, const  Price<U> &p2) {
     return p1+(p2*Price<char>(-1));
 }
-//template <template T , typename U>
-//inline Price<T> operator * (const Price<T>& p1, const  Price<U> &p2)
-
+template <template T , typename U>
+inline Price<T> operator * (const Price<T>& p1, const  Price<U> &p2){
+    size_t new_price;
+    new_price = p1.getDollarAndCents()*p2.getDollarAndCents();
+    if(p1.isPositive()!=p2.isPositive()){
+      new_price =new_price*-1;
+    }
+    return Price<T>(new_price/100,new_price%100);
+}
+inline Price<T> operator/(const Price<T>& p1, const  Price<U> &p2){
+    size_t new_price;
+    new_price = p1.getDollarAndCents()/p2.getDollarAndCents();
+    if(p1.isPositive()!=p2.isPositive()){
+        new_price =new_price*-1;
+    }
+    return Price<T>(new_price/100,new_price%100);
+}
+//inline Price<T> operator%(const Price<T>& p1, const  Price<U> &p2){
+//    size_t new_price;
+//    new_price = p1.getDollarAndCents()%p2.getDollarAndCents();
+//    if(p1.isPositive()!=p2.isPositive()){
+//        new_price =new_price*-1;
+//    }
+//    return Price<T>(new_price/100,new_price%100);
+//}
 #endif //PRICE_PRICE_H

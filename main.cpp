@@ -4,11 +4,16 @@
 #include "Price.h"
 int main()
 {
-    Price<int> p1(4,6);
-    Price<int> p2(2,6);
+    Price<int> p1(1,60);
+    Price<int> p2(-2,40);
     std::cout<<p2<<std::endl;
     double d =p1;
+    std::cout<<(p1+p2)<<std::endl;
+    std::cout<<(p1-p2)<<std::endl;
+    std::cout<<(p2*p1)<<std::endl;
     std::cout<<d<<std::endl;
+    Price<long > p3(1,4);
+    Price<short int> p4(1,4);
 //    Price<char> p1(4,6);
     return 1;
 }

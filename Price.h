@@ -9,24 +9,24 @@
 #include <cmath>
 #include <iostream>
 #include <stdbool.h>
-template <typename T >
-class Price {
+template <unsigned int SIZE,typename T=int >
+class FixedPoint {
 public:
-    Price(T dollar =0, int cents=0);
+    FixedPoint(T dollar =0, int cents=0);
     T getDollar() const;
     int getCents() const;
     bool isPositive()const;
-    Price&operator+=(const Price &p);
-    Price&operator-=(const Price &p);
-    Price&operator*=(const Price &p);
-    Price&operator/=(const Price &p);
-    Price&operator%=(const Price &p);
-    Price&operator=(int i);
-    Price operator ++(int);
-    Price operator ++();
+    FixedPoint&operator+=(const FixedPoint &p);
+    FixedPoint&operator-=(const FixedPoint &p);
+    FixedPoint&operator*=(const FixedPoint &p);
+    FixedPoint&operator/=(const FixedPoint &p);
+    FixedPoint&operator%=(const FixedPoint &p);
+    FixedPoint&operator=(int i);
+    FixedPoint operator ++(int);
+    FixedPoint operator ++();
     operator double (){ return getDouble();}
     void fixed_cents(T &dollar, int &cents) const;
-    static const short int cents_in_dollar=100;
+    static const int size_in_dollar;
 private:
     T m_dollar;
     int m_cents;
@@ -34,32 +34,33 @@ private:
     bool isOverflow(T &dollar, int &cents)const;
     double getDouble()const;
 };
+template <unsigned int SIZE,typename T>
+const int FixedPoint<SIZE ,T>::size_in_dollar((int)pow(10,SIZE));
 /********************private functions*********************/
-template <typename T>
-inline void Price<T>::fixed_cents(T &dollar, int &cents) const{
-        dollar+=int(cents/cents_in_dollar);
-        cents=cents%cents_in_dollar;
-
+template <unsigned int SIZE,typename T >
+inline void FixedPoint<SIZE,T>::fixed_cents(T &dollar, int &cents) const{
+        dollar+=int(cents/size_in_dollar);
+        cents=cents%size_in_dollar;
 }
-template <typename T>
-inline bool Price<T>::isOverflow(T &dollar, int &cents) const {
-    return true;
-}
-template <typename T>
-inline double Price<T>::getDouble() const{
+//<unsigned int SIZE,typename T=int >
+//inline bool Price<T>::isOverflow(T &dollar, int &cents) const {
+//    return true;
+//}
+template <unsigned int SIZE,typename T>
+inline double FixedPoint<SIZE,T>::getDouble() const{
     double d=0;
     if(m_sign){
         d+=(double(m_dollar));
-        d+=double(m_cents)/100;
+        d+=double(m_cents)/size_in_dollar;
     }
     else{
         d-=(double(m_dollar));
-        d-=double(m_cents)/100;
+        d-=double(m_cents)/size_in_dollar;
     }
     return d;
 }
-template <typename T>
-inline Price<T>::Price(T dollar, int cents):m_dollar(0),m_cents(0),m_sign(true){
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>::FixedPoint(T dollar, int cents):m_dollar(0),m_cents(0),m_sign(true){
    if((dollar>=0) && (cents>=0)){
        m_sign= true;
    }
@@ -68,53 +69,57 @@ inline Price<T>::Price(T dollar, int cents):m_dollar(0),m_cents(0),m_sign(true){
    }
    m_dollar=abs(dollar);
    m_cents=abs(cents);
-   if(cents>100){
+   if(cents> size_in_dollar){
        fixed_cents(m_dollar,m_cents);
    }
 }
 /*******************get functions*********************/
-template <typename T >
-inline int Price<T>::getCents() const{
+template <unsigned int SIZE,typename T>
+inline int FixedPoint<SIZE,T>::getCents() const{
     return m_cents;
 }
-template <typename T >
-inline T Price<T >::getDollar() const {
+template <unsigned int SIZE,typename T>
+inline T FixedPoint<SIZE,T>::getDollar() const {
     return m_dollar;
 }
-template <typename T >
-inline bool Price<T >::isPositive() const {
+template <unsigned int SIZE,typename T>
+inline bool FixedPoint<SIZE,T>::isPositive() const {
     return m_sign;
 }
 /******************global functions**************************/
-template <typename T >
-Price<T> operator+(const Price<T>& p1, const Price<T> & p2);
-template <typename T >
-Price<T> operator-(const Price<T>& p1, const  Price<T> &p2);
-template <typename T >
-Price<T> operator*(const Price<T>& p1, const  Price<T> &p2);
-template <typename T >
-Price<T> const operator-(const Price<T>& p);
-template <typename T >
-bool operator==(const Price<T>& p1, const Price<T>& p2);
-template <typename T >
-bool operator!=(const Price<T>& p1, const Price<T>& p2);
-template <typename T >
-bool operator>=(const Price<T>& p1, const Price<T>& p2);
-template <typename T >
-bool operator<=(const Price<T>& p1, const Price<T>& p2);
-template <typename T >
-bool operator<(const Price<T>& p1, const Price<T>& p2);
-template <typename T >
-bool operator>(const Price<T>& p1, const Price<T>& p2);
-template <typename T >
+template <unsigned int SIZE,typename T>
+FixedPoint<SIZE,T> operator+(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+FixedPoint<SIZE,T> operator-(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+FixedPoint<SIZE,T> operator*(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+FixedPoint<SIZE,T> const operator-(const FixedPoint<SIZE,T>& p);
+template <unsigned int SIZE,typename T>
+bool operator==(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+bool operator!=(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+bool operator>=(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+bool operator<=(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+bool operator<(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
+template <unsigned int SIZE,typename T>
+bool operator>(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T> & p2);
 
-inline Price<T> operator+(const Price<T>& p1, const  Price<T> & p2){
-    T dollar ,cents;
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> operator+(const FixedPoint<SIZE,T>& p1, const  FixedPoint<SIZE,T> & p2){
+    T dollar ;
+    int cents;
     if(p1.isPositive() == p2.isPositive())
     {
+        if((p1.getDollar()+p2.getDollar())>pow(2, sizeof(T))){
+            throw std::out_of_range("gdg");
+        }
         dollar = (p1.getDollar()+p2.getDollar())*(p1.isPositive()*2-1);
         cents = p1.getCents()+p2.getCents();
-        return Price<T>(dollar,cents);
+        return FixedPoint<SIZE,T>(dollar,cents);
     }
     if(p1.isPositive()== true){
         return p1-(-p2);
@@ -122,10 +127,11 @@ inline Price<T> operator+(const Price<T>& p1, const  Price<T> & p2){
     return p2-(-p1);
 
 }
-template <typename T >
-inline Price<T> operator-(const Price<T>& p1, const  Price<T> &p2) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> operator-(const FixedPoint<SIZE,T>& p1, const  FixedPoint<SIZE,T> &p2) {
     if(p1.isPositive()==p2.isPositive()){
-        T dollar,cents;
+        T dollar;
+        int cents;
         if(p1.isPositive()==true){
             dollar=p1.getDollar()-p2.getDollar();
             cents=p1.getCents()-p2.getCents();
@@ -133,18 +139,18 @@ inline Price<T> operator-(const Price<T>& p1, const  Price<T> &p2) {
                 dollar--;
                 cents = (-1)*cents;
                 if(dollar==0){
-                    cents = 100-cents;
+                    cents = FixedPoint<SIZE>::size_in_dollar-cents;
                 }
             }
             else{
                 if(dollar<0 && cents>0){
                     dollar++;
                     if(dollar==0){
-                        cents = -100+cents;
+                        cents = -FixedPoint<SIZE>::size_in_dollar-cents+cents;
                     }
                 }
             }
-            return Price<T>(dollar,cents);
+            return FixedPoint<SIZE,T>(dollar,cents);
 
         }
         else{
@@ -157,20 +163,20 @@ inline Price<T> operator-(const Price<T>& p1, const  Price<T> &p2) {
     }
     return p1+(-p1);
 }
-template <typename T>
-inline const Price<T> operator-(const Price<T>& p)  {
-    return p *(Price<int>(-1));
+template <unsigned int SIZE,typename T>
+inline const FixedPoint<SIZE,T> operator-(const FixedPoint<SIZE,T>& p)  {
+    return p *(FixedPoint<SIZE,T>(-1));
 }
-template <typename T>
-inline bool operator==(const Price<T>& p1, const Price<T>& p2){
+template <unsigned int SIZE,typename T>
+inline bool operator==(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     return (((p1.getDollar()==p2.getDollar())&& (p1.getCents()==p2.getCents()))&& p1.isPositive()==p2.isPositive());
 }
-template <typename T>
-inline bool operator!=(const Price<T>& p1, const Price<T>& p2){
+template <unsigned int SIZE,typename T>
+inline bool operator!=(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     return !(p1==p2);
 }
-template <typename T>
-inline bool operator >(const Price<T>& p1, const Price<T>& p2){
+template <unsigned int SIZE,typename T>
+inline bool operator >(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     if(p1.isPositive()==p2.isPositive())
     {
         if(p1.isPositive())
@@ -181,16 +187,16 @@ inline bool operator >(const Price<T>& p1, const Price<T>& p2){
         return true;
     return false;
 }
-template <typename T>
-inline bool operator <(const Price<T>& p1, const Price<T>& p2){
+template <unsigned int SIZE,typename T>
+inline bool operator <(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     return (!(p1>p2)) && (p1!=p2);
 }
-template <typename T>
-inline bool operator <= (const Price<T>& p1, const Price<T>& p2){
+template <unsigned int SIZE,typename T>
+inline bool operator <= (const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     return !(p1>p2);
 }
-template <typename T>
-inline bool operator >=(const Price<T>& p1, const Price<T>& p2){
+template <unsigned int SIZE,typename T>
+inline bool operator >=(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     return (p1>p2) || (p1==p2);
 }
 //template <typename T>
@@ -198,17 +204,12 @@ inline bool operator >=(const Price<T>& p1, const Price<T>& p2){
 //    cout<<p1.getDollar()<<"."<<p1.getCents()/10.0;
 //    return cout;
 //}
-template <typename T >
-inline Price<T> operator * (const Price<T>& p1, const  Price<T> &p2){
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> operator * (const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     T dollar ,cents;
     dollar = p1.getDollar()*p2.getDollar();
     cents = p1.getDollar()*p2.getCents()+ p2.getDollar()*p1.getCents()+p1.getCents()*(p2.getCents()/10);
-    if(cents>100){
-        dollar+=cents/100;
-        cents=cents%100;
-    }
-
-    return Price<T> (dollar,cents);
+    return FixedPoint<SIZE,T> (dollar,cents);
 }
 //template <typename T , typename U>
 //inline Price<T> operator/(const Price<T>& p1, const  Price<U> &p2){
@@ -228,36 +229,44 @@ inline Price<T> operator * (const Price<T>& p1, const  Price<T> &p2){
 //    return Price<T>(new_price/100,new_price%100);
 //}
 /****************operator functions******************/
-template <typename  T>
-inline Price<T> Price<T>::operator++(int){
-    return Price<T>(m_dollar+1,m_cents);
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> FixedPoint<SIZE,T>::operator++(int){
+    if((m_dollar+1)>pow(2, sizeof(T)))
+        throw std::out_of_range();
+    FixedPoint<SIZE,T> tmp(*this);
+    this->m_dollar++;
+    return tmp;
 }
-template <typename T>
-inline Price<T> Price<T>::operator++() {
-    return Price<T>(m_dollar+1,m_cents);
+//template <typename T>
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> FixedPoint<SIZE,T>::operator++(){
+    if((m_dollar+1)>pow(2, sizeof(T)))
+        throw std::out_of_range();
+    this->m_dollar++;
+    return FixedPoint<SIZE,T>(m_dollar+1,m_cents);
 }
-template <typename T>
-inline Price<T>& Price<T>::operator+=(const Price<T> &p) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator+=(const FixedPoint<SIZE,T> &p) {
     *this = *this + p;
 }
-template <typename T>
-inline Price<T>& Price<T>::operator-=(const Price<T> &p) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator-=(const FixedPoint<SIZE,T> &p) {
     *this = *this - p;
 }
-template <typename T>
-inline Price<T>& Price<T>::operator*=(const Price<T> &p) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator*=(const FixedPoint<SIZE,T> &p) {
     *this = *this * p;
 }
-template <typename T>
-inline Price<T>& Price<T>::operator/=(const Price<T> &p) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator/=(const FixedPoint<SIZE,T> &p){
     *this = *this / p;
 }
-template <typename T>
-inline Price<T>& Price<T>::operator%=(const Price<T> &p) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator%=(const FixedPoint<SIZE,T> &p) {
     *this = *this % p;
 }
-template <typename T>
-inline Price<T>& Price<T>::operator=(int i) {
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator=(int i) {
     m_dollar=abs(i);
     m_cents = 0;
     m_sign = i>0? true: false;

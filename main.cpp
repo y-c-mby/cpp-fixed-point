@@ -5,8 +5,13 @@
 int main()
 {
     FixedPoint<3> p1(4,1);
-    FixedPoint<3> p2(2,30);
-    std::cout<<(p1+p2)<<std::endl;
+    FixedPoint<3> p2(-6,30);
+    std::cout<<(p1>p2)<<std::endl;
+    p1 = ++p2;
+    std::cout<<p1<<std::endl;
+    p1 =p2++;
+    std::cout<<p1<<std::endl;
+    std::cout<<p2<<std::endl;
 //    Price<int> p1(1,60);
 //    Price<int> p2(-2,40);
 //    std::cout<<p2<<std::endl;

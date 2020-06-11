@@ -24,9 +24,11 @@ public:
     FixedPoint&operator=(int i);
     FixedPoint operator ++(int);
     FixedPoint operator ++();
+    FixedPoint operator --(int);
+    FixedPoint operator --();
     operator double (){ return getDouble();}
     void fixed_cents(T &dollar, int &cents) const;
-    static const int size_in_dollar;
+    static const int SIZE_IN_DOLLAR;
 private:
     T m_dollar;
     int m_cents;
@@ -35,27 +37,26 @@ private:
     double getDouble()const;
 };
 template <unsigned int SIZE,typename T>
-const int FixedPoint<SIZE ,T>::size_in_dollar((int)pow(10,SIZE));
+const int FixedPoint<SIZE ,T>::SIZE_IN_DOLLAR((int)pow(10,SIZE));
 /********************private functions*********************/
 template <unsigned int SIZE,typename T >
 inline void FixedPoint<SIZE,T>::fixed_cents(T &dollar, int &cents) const{
-        dollar+=int(cents/size_in_dollar);
-        cents=cents%size_in_dollar;
+        if(dollar+int(cents/SIZE_IN_DOLLAR)>pow(2, sizeof(T)))
+            throw std::out_of_range("overflow type");
+
+        dollar+=int(cents/SIZE_IN_DOLLAR);
+        cents=cents%SIZE_IN_DOLLAR;
 }
-//<unsigned int SIZE,typename T=int >
-//inline bool Price<T>::isOverflow(T &dollar, int &cents) const {
-//    return true;
-//}
 template <unsigned int SIZE,typename T>
 inline double FixedPoint<SIZE,T>::getDouble() const{
     double d=0;
     if(m_sign){
         d+=(double(m_dollar));
-        d+=double(m_cents)/size_in_dollar;
+        d+=double(m_cents)/SIZE_IN_DOLLAR;
     }
     else{
         d-=(double(m_dollar));
-        d-=double(m_cents)/size_in_dollar;
+        d-=double(m_cents)/SIZE_IN_DOLLAR;
     }
     return d;
 }
@@ -69,7 +70,7 @@ inline FixedPoint<SIZE,T>::FixedPoint(T dollar, int cents):m_dollar(0),m_cents(0
    }
    m_dollar=abs(dollar);
    m_cents=abs(cents);
-   if(cents> size_in_dollar){
+   if(cents> SIZE_IN_DOLLAR){
        fixed_cents(m_dollar,m_cents);
    }
 }
@@ -115,7 +116,7 @@ inline FixedPoint<SIZE,T> operator+(const FixedPoint<SIZE,T>& p1, const  FixedPo
     if(p1.isPositive() == p2.isPositive())
     {
         if((p1.getDollar()+p2.getDollar())>pow(2, sizeof(T))){
-            throw std::out_of_range("gdg");
+            throw std::out_of_range("overflow type");
         }
         dollar = (p1.getDollar()+p2.getDollar())*(p1.isPositive()*2-1);
         cents = p1.getCents()+p2.getCents();
@@ -139,14 +140,14 @@ inline FixedPoint<SIZE,T> operator-(const FixedPoint<SIZE,T>& p1, const  FixedPo
                 dollar--;
                 cents = (-1)*cents;
                 if(dollar==0){
-                    cents = FixedPoint<SIZE>::size_in_dollar-cents;
+                    cents = FixedPoint<SIZE>::SIZE_IN_DOLLAR-cents;
                 }
             }
             else{
                 if(dollar<0 && cents>0){
                     dollar++;
                     if(dollar==0){
-                        cents = -FixedPoint<SIZE>::size_in_dollar-cents+cents;
+                        cents = -FixedPoint<SIZE>::SIZE_IN_DOLLAR-cents+cents;
                     }
                 }
             }
@@ -207,6 +208,8 @@ inline bool operator >=(const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& 
 template <unsigned int SIZE,typename T>
 inline FixedPoint<SIZE,T> operator * (const FixedPoint<SIZE,T>& p1, const FixedPoint<SIZE,T>& p2){
     T dollar ,cents;
+    if(p1.getDollar()*p2.getDollar()>pow(2, sizeof(T)))
+        throw std::out_of_range("overflow type");
     dollar = p1.getDollar()*p2.getDollar();
     cents = p1.getDollar()*p2.getCents()+ p2.getDollar()*p1.getCents()+p1.getCents()*(p2.getCents()/10);
     return FixedPoint<SIZE,T> (dollar,cents);
@@ -232,18 +235,26 @@ inline FixedPoint<SIZE,T> operator * (const FixedPoint<SIZE,T>& p1, const FixedP
 template <unsigned int SIZE,typename T>
 inline FixedPoint<SIZE,T> FixedPoint<SIZE,T>::operator++(int){
     if((m_dollar+1)>pow(2, sizeof(T)))
-        throw std::out_of_range();
+        throw std::out_of_range("overflow");
+
     FixedPoint<SIZE,T> tmp(*this);
-    this->m_dollar++;
+    if(m_sign)
+        this->m_dollar++;
+    else
+        this->m_dollar--;
     return tmp;
 }
 //template <typename T>
 template <unsigned int SIZE,typename T>
 inline FixedPoint<SIZE,T> FixedPoint<SIZE,T>::operator++(){
     if((m_dollar+1)>pow(2, sizeof(T)))
-        throw std::out_of_range();
-    this->m_dollar++;
-    return FixedPoint<SIZE,T>(m_dollar+1,m_cents);
+        throw std::out_of_range("overflow type");
+
+    if(m_sign)
+        this->m_dollar++;
+    else
+        this->m_dollar--;
+    return FixedPoint<SIZE,T>(*this);
 }
 template <unsigned int SIZE,typename T>
 inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator+=(const FixedPoint<SIZE,T> &p) {
@@ -271,5 +282,23 @@ inline FixedPoint<SIZE,T>& FixedPoint<SIZE,T>::operator=(int i) {
     m_cents = 0;
     m_sign = i>0? true: false;
     return *this;
+}
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> FixedPoint<SIZE,T>::operator--(int){
+    FixedPoint<SIZE,T> tmp(*this);
+    if(m_sign)
+        this->m_dollar--;
+    else
+        this->m_dollar++;
+    return tmp;
+}
+//template <typename T>
+template <unsigned int SIZE,typename T>
+inline FixedPoint<SIZE,T> FixedPoint<SIZE,T>::operator--(){
+    if(m_sign)
+        this->m_dollar--;
+    else
+        this->m_dollar++;
+    return FixedPoint<SIZE,T>(*this);
 }
 #endif //PRICE_PRICE_H

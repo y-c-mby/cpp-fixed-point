@@ -18,6 +18,7 @@ std::string convert_to_words(std::string c,std::size_t start ,std::size_t end)
     for (unsigned int j = start; j < end; ++j) {
         num[j-start]=c[j];
     }
+    std::string ans;
     int len = strlen(num); // Get number of digits in given number
 
     /* Base cases */
@@ -53,8 +54,9 @@ std::string convert_to_words(std::string c,std::size_t start ,std::size_t end)
 
     /* For single digit number */
     if (len == 1) {
-        printf("%s\n", single_digits[*num - '0']);
-        return num;
+        ans+=single_digits[*num - '0'];
+//        printf("%s\n", single_digits[*num - '0']);
+        return ans;
     }
 
     /* Iterate while num is not '\0' */
@@ -63,8 +65,12 @@ std::string convert_to_words(std::string c,std::size_t start ,std::size_t end)
         /* Code path for first 2 digits */
         if (len >= 3) {
             if (*num - '0' != 0) {
-                printf("%s ", single_digits[*num - '0']);
-                printf("%s ", tens_power[len - 3]); // here len can be 3 or 4
+                ans+=single_digits[*num - '0'];
+                ans+=" ";
+//                printf("%s ", single_digits[*num - '0']);
+                ans+=tens_power[len - 3];
+                ans+=" ";
+//                printf("%s ", tens_power[len - 3]); // here len can be 3 or 4
             }
             --len;
         }
@@ -75,28 +81,38 @@ std::string convert_to_words(std::string c,std::size_t start ,std::size_t end)
             used as index of "two_digits" array of strings */
             if (*num == '1') {
                 int sum = *num - '0' + *(num + 1) - '0';
-                printf("%s\n", two_digits[sum]);
-                return num;
+                ans+=two_digits[sum];
+                ans+=" ";
+//                printf("%s\n", two_digits[sum]);
+                return ans;
             }
 
                 /* Need to explicitely handle 20 */
             else if (*num == '2' && *(num + 1) == '0') {
-                printf("twenty\n");
-                return num;
+                ans+="twenty\n";
+                ans+=" ";
+//                printf("twenty\n");
+                return ans;
             }
 
                 /* Rest of the two digit numbers i.e., 21 to 99 */
             else {
                 int i = *num - '0';
-                printf("%s ", i ? tens_multiple[i] : "");
+                ans+=i ? tens_multiple[i] : "";
+                ans+=" ";
+//                printf("%s ", i ? tens_multiple[i] : "");
                 ++num;
-                if (*num != '0')
-                    printf("%s ", single_digits[*num - '0']);
+                if (*num != '0'){
+                    ans+=single_digits[*num - '0'];
+                    ans+=" ";
+                }
+
+//                    printf("%s ", single_digits[*num - '0']);
             }
         }
         ++num;
     }
-    return num;
+    return ans;
 }
 
 
